@@ -4,13 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import udemy.spring.recipeproject.converters.RecipeCommandToRecipe;
+import udemy.spring.recipeproject.converters.RecipeToRecipeCommand;
 import udemy.spring.recipeproject.domain.Recipe;
 import udemy.spring.recipeproject.repositories.RecipeRepository;
 
-import java.lang.management.OperatingSystemMXBean;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -25,10 +24,14 @@ class RecipeServiceImplTest {
 
     @Mock
     RecipeRepository recipeRepository;
+    @Mock
+    RecipeCommandToRecipe recipeCommandToRecipe;
+    @Mock
+    RecipeToRecipeCommand recipeToRecipeCommand;
 
     @BeforeEach
     void setUp() {
-        recipeService = new RecipeServiceImpl(recipeRepository);
+        recipeService = new RecipeServiceImpl(recipeRepository, recipeCommandToRecipe, recipeToRecipeCommand);
     }
 
     @Test

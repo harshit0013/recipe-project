@@ -2,6 +2,9 @@ package udemy.spring.recipeproject.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import udemy.spring.recipeproject.commands.RecipeCommand;
+import udemy.spring.recipeproject.converters.RecipeCommandToRecipe;
+import udemy.spring.recipeproject.converters.RecipeToRecipeCommand;
 import udemy.spring.recipeproject.domain.Recipe;
 import udemy.spring.recipeproject.repositories.RecipeRepository;
 
@@ -13,9 +16,13 @@ import java.util.Set;
 @Service
 public class RecipeServiceImpl implements RecipeService {
     private final RecipeRepository recipeRepository;
+    private final RecipeCommandToRecipe recipeCommandToRecipe;
+    private final RecipeToRecipeCommand recipeToRecipeCommand;
 
-    public RecipeServiceImpl(RecipeRepository recipeRepository) {
+    public RecipeServiceImpl(RecipeRepository recipeRepository, RecipeCommandToRecipe recipeCommandToRecipe, RecipeToRecipeCommand recipeToRecipeCommand) {
         this.recipeRepository = recipeRepository;
+        this.recipeCommandToRecipe = recipeCommandToRecipe;
+        this.recipeToRecipeCommand = recipeToRecipeCommand;
     }
 
     @Override
@@ -36,5 +43,13 @@ public class RecipeServiceImpl implements RecipeService {
             throw new RuntimeException("Recipe Not Found");
 
         return optionalRecipe.get();
+    }
+
+    @Override
+    public RecipeCommand saveRecipeCommand(RecipeCommand command) {
+        Recipe detachedRecipe = recipeCommandToRecipe.convert(command);
+        Recipe savedRecipe = recipeRepository.save(detachedRecipe);
+        log.debug("Saved RecipeId : " + savedRecipe.getId());
+        return recipeToRecipeCommand.convert(savedRecipe);
     }
 }
