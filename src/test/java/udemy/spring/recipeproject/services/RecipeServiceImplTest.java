@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import udemy.spring.recipeproject.converters.RecipeCommandToRecipe;
 import udemy.spring.recipeproject.converters.RecipeToRecipeCommand;
@@ -31,6 +32,7 @@ class RecipeServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.initMocks(this);
         recipeService = new RecipeServiceImpl(recipeRepository, recipeCommandToRecipe, recipeToRecipeCommand);
     }
 
@@ -43,8 +45,10 @@ class RecipeServiceImplTest {
         when(recipeRepository.findAll()).thenReturn(recipeData);
 
         Set<Recipe> recipes = recipeService.getRecipes();
+
         assertEquals(recipes.size(), 1);
         verify(recipeRepository, times(1)).findAll();
+        verify(recipeRepository, never()).findById(anyLong());
     }
 
     @Test

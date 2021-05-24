@@ -2,6 +2,7 @@ package udemy.spring.recipeproject.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import udemy.spring.recipeproject.commands.RecipeCommand;
 import udemy.spring.recipeproject.converters.RecipeCommandToRecipe;
 import udemy.spring.recipeproject.converters.RecipeToRecipeCommand;
@@ -46,6 +47,7 @@ public class RecipeServiceImpl implements RecipeService {
     }
 
     @Override
+    @Transactional
     public RecipeCommand saveRecipeCommand(RecipeCommand command) {
         Recipe detachedRecipe = recipeCommandToRecipe.convert(command);
         Recipe savedRecipe = recipeRepository.save(detachedRecipe);

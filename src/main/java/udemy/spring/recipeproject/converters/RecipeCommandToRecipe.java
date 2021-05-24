@@ -16,9 +16,9 @@ public class RecipeCommandToRecipe implements Converter<RecipeCommand, Recipe> {
     private final IngredientCommandToIngredient ingredient;
     private final CategoryCommandToCategory category;
 
-    public RecipeCommandToRecipe(NotesCommandToNotes notes,
+    public RecipeCommandToRecipe(CategoryCommandToCategory category,
                                  IngredientCommandToIngredient ingredient,
-                                 CategoryCommandToCategory category) {
+                                 NotesCommandToNotes notes) {
         this.notes = notes;
         this.ingredient = ingredient;
         this.category = category;
