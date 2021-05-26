@@ -2,21 +2,30 @@ package udemy.spring.recipeproject.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import udemy.spring.recipeproject.commands.IngredientCommand;
+import udemy.spring.recipeproject.converters.IngredientCommandToIngredient;
 import udemy.spring.recipeproject.converters.IngredientToIngredientCommand;
+import udemy.spring.recipeproject.domain.Ingredient;
 import udemy.spring.recipeproject.domain.Recipe;
 import udemy.spring.recipeproject.repositories.RecipeRepository;
+import udemy.spring.recipeproject.repositories.UnitOfMeasureRepository;
 
 import java.util.Optional;
 
 @Slf4j
 @Service
 public class IngredientServiceImpl implements IngredientService {
-    private final IngredientToIngredientCommand command;
+    private final IngredientToIngredientCommand ingredientToIngredientCommand;
+    private final IngredientCommandToIngredient ingredientCommandToIngredient;
+    private final UnitOfMeasureRepository unitOfMeasureRepository;
     private final RecipeRepository recipeRepository;
 
-    public IngredientServiceImpl(IngredientToIngredientCommand command, RecipeRepository recipeRepository) {
-        this.command = command;
+    public IngredientServiceImpl(IngredientToIngredientCommand command, IngredientCommandToIngredient ingredientCommandToIngredient,
+                                 UnitOfMeasureRepository unitOfMeasureRepository, RecipeRepository recipeRepository) {
+        this.ingredientToIngredientCommand = command;
+        this.ingredientCommandToIngredient = ingredientCommandToIngredient;
+        this.unitOfMeasureRepository = unitOfMeasureRepository;
         this.recipeRepository = recipeRepository;
     }
 
@@ -32,7 +41,7 @@ public class IngredientServiceImpl implements IngredientService {
 
         Optional<IngredientCommand> optionalIngredientCommand = recipe.getIngredients().stream()
                 .filter(ingredient -> ingredient.getId().equals(ingredientId))
-                .map(ingredient -> command.convert(ingredient)).findFirst();
+                .map(ingredient -> ingredientToIngredientCommand.convert(ingredient)).findFirst();
         if(!optionalIngredientCommand.isPresent())
         {
             // Todo error handling
@@ -40,5 +49,46 @@ public class IngredientServiceImpl implements IngredientService {
         }
 
         return optionalIngredientCommand.get();
+    }
+
+    @Override
+    @Transactional
+    public IngredientCommand saveIngredientCommand(IngredientCommand command) {
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(command.getRecipeId());
+        if(!optionalRecipe.isPresent())
+        {
+            // Todo handle error
+            log.debug("Recipe not found for ID : " + command.getRecipeId());
+            return new IngredientCommand();
+        }
+        else
+        {
+            Recipe recipe = optionalRecipe.get();
+            Optional<Ingredient> optionalIngredient = recipe.getIngredients().stream()
+                    .filter(ingredient -> ingredient.getId().equals(command.getId()))
+                    .findFirst();
+
+            if (optionalIngredient.isPresent())
+            {
+                Ingredient ingredientFound = optionalIngredient.get();
+                ingredientFound.setDescription(command.getDescription());
+                ingredientFound.setAmount(command.getAmount());
+                ingredientFound.setUom(unitOfMeasureRepository.findById(command.getUom().getId())
+                .orElseThrow(() -> new RuntimeException("UOM not found"))); // handle this as well
+            }
+            else
+            {
+                //add new ingredient
+                recipe.addIngredient(ingredientCommandToIngredient.convert(command));
+            }
+
+            Recipe recipeSaved = recipeRepository.save(recipe);
+
+            // todo check for fail
+            return  ingredientToIngredientCommand.convert(recipeSaved.getIngredients().stream()
+                .filter(recipeIngredients -> recipeIngredients.getId().equals(command.getId()))
+                .findFirst()
+                .get());
+        }
     }
 }
