@@ -1,6 +1,5 @@
 package udemy.spring.recipeproject.controllers;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import udemy.spring.recipeproject.commands.IngredientCommand;
 import udemy.spring.recipeproject.commands.RecipeCommand;
 import udemy.spring.recipeproject.commands.UnitOfMeasureCommand;
-import udemy.spring.recipeproject.domain.UnitOfMeasure;
 import udemy.spring.recipeproject.services.IngredientService;
 import udemy.spring.recipeproject.services.RecipeService;
 import udemy.spring.recipeproject.services.UnitOfMeasureService;
@@ -75,7 +73,7 @@ public class IngredientController {
                 Long.valueOf(id)));
         model.addAttribute("uomList", unitOfMeasureService.listAllUoms());
 
-        return "recipe/ingredient/ingredientForm";
+        return "recipe/ingredient/ingredientform";
     }
 
     @PostMapping("/recipe/{recipeId}/ingredient")
