@@ -1,5 +1,6 @@
 package udemy.spring.recipeproject.services;
 
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,6 +8,7 @@ import udemy.spring.recipeproject.commands.RecipeCommand;
 import udemy.spring.recipeproject.converters.RecipeCommandToRecipe;
 import udemy.spring.recipeproject.converters.RecipeToRecipeCommand;
 import udemy.spring.recipeproject.domain.Recipe;
+import udemy.spring.recipeproject.exceptions.NotFoundException;
 import udemy.spring.recipeproject.repositories.RecipeRepository;
 
 import java.util.HashSet;
@@ -40,8 +42,10 @@ public class RecipeServiceImpl implements RecipeService {
     {
         Optional<Recipe> optionalRecipe = recipeRepository.findById(l);
 
-        if(!optionalRecipe.isPresent())
-            throw new RuntimeException("Recipe Not Found");
+        if(!optionalRecipe.isPresent()) {
+            //throw new RuntimeException("Recipe Not Found");
+            throw new NotFoundException("Recipe Not Found");
+        }
 
         return optionalRecipe.get();
     }

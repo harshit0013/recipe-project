@@ -10,6 +10,7 @@ import udemy.spring.recipeproject.commands.RecipeCommand;
 import udemy.spring.recipeproject.converters.RecipeCommandToRecipe;
 import udemy.spring.recipeproject.converters.RecipeToRecipeCommand;
 import udemy.spring.recipeproject.domain.Recipe;
+import udemy.spring.recipeproject.exceptions.NotFoundException;
 import udemy.spring.recipeproject.repositories.RecipeRepository;
 
 import java.util.HashSet;
@@ -65,6 +66,20 @@ class RecipeServiceImplTest {
         assertNotNull(recipeReturned);
         verify(recipeRepository, times(1)).findById(anyLong());
         verify(recipeRepository, never()).findAll();
+    }
+
+    @Test
+    void getRecipeByIdTestNotFound()
+    {
+        Optional<Recipe> optionalRecipe = Optional.empty();
+        when(recipeRepository.findById(anyLong())).thenReturn(optionalRecipe);
+
+        NotFoundException notFoundException = assertThrows(
+                NotFoundException.class, () -> recipeService.findById(1L),
+                "expected to throw error, but it didn't"
+        );
+
+        assertTrue(notFoundException.getMessage().contains("Recipe Not Found"));
     }
 
     @Test
